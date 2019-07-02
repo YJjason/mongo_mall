@@ -5,10 +5,12 @@ import App from './App'
 import router from './router'
 
 import VueLazyLoad from 'vue-lazyload' //图片懒加载
+import infiniteScroll from 'vue-infinite-scroll'
 
 Vue.use(VueLazyLoad, {
   loading: '/static/loading-svg/loading-balls.svg'
 })
+Vue.use(infiniteScroll)
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

@@ -14,7 +14,7 @@
         <div class="filter-nav">
           <span class="sortby">Sort by:</span>
           <a href="javascript:void(0)" class="default cur">Default</a>
-          <a href="javascript:void(0)" class="price">Price
+          <a href="javascript:void(0)" class="price" @click="sortGoods">Price
             <svg class="icon icon-arrow-short">
               <use xlink:href="#icon-arrow-short"></use>
             </svg>
@@ -41,7 +41,7 @@
           <!-- search result accessories list -->
           <div class="accessory-list-wrap">
             <div class="accessory-list col-4">
-              <ul>
+              <ul class="clearfix">
                 <li v-for="(item,index) in goodsList">
                   <div class="pic">
                     <a href="#">
@@ -57,6 +57,11 @@
                   </div>
                 </li>
               </ul>
+              <div class="load-more"
+                   v-infinite-scroll="loadMore"
+                   infinite-scroll-disabled="busy" infinite-scroll-distance="10">
+                加载中...
+              </div>
             </div>
           </div>
         </div>
@@ -107,17 +112,41 @@
         ],
         currentPrice: 0,
         showPrice: false,
-        maskdisplay: false
+        maskdisplay: false,
+        sortflag: true, //升序
+        page: 1,
+        pageSize: 8,
+        busy: false,
+
+
       }
     },
     mounted() {
       this.getGoodsList()
+
     },
     methods: {
-      getGoodsList() {
-        axios.get('/goods').then(result => {
+      getGoodsList(flag) {
+        let param = {
+          page: this.page,
+          pageSize: this.pageSize,
+          sort: this.sortflag == true ? 1 : -1
+        }
+        axios.get('/goods', {
+          params: param
+        }).then(result => {
           let res = result.data;
-          this.goodsList = res.result.list
+          if (flag) { // 分页 data 进行累加
+            this.goodsList = this.goodsList.concat(res.result.list)
+            if (this.result.count == 0) {
+              this.busy = true //没有数据不在滚动
+            } else {
+              this.busy = false
+            }
+          } else {
+            this.goodsList = res.result.list
+            this.busy = false
+          }
         })
       },
       selectAll() {
@@ -135,12 +164,29 @@
       closlePop() {
         this.showPrice = false
         this.maskdisplay = false
+      },
+      //排序
+      sortGoods() {
+        this.sortflag = !this.sortflag
+        this.page = 1
+        this.getGoodsList()
+      },
+      loadMore() {
+        this.busy = true
+        setTimeout(() => {
+          this.page++
+          this.getGoodsList(true)
+        }, 1000)
       }
     }
   }
 </script>
 
 <style scoped>
-
+  .load-more {
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+  }
 </style>
 `
