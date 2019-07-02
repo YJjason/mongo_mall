@@ -28,7 +28,21 @@ mongoose.connection.on('disconnected', () => {
 // 4. 获取路由
 
 router.get('/', function (req, res, next) {
-  Goods.find({}, function (err, doc) {
+  //分页 借用mongodb 的skip 和limit
+  let page = parseInt(req.param('page'));
+  let pageSize =parseInt(req.param('pageSize'));
+
+  let skip = (page-1)*pageSize;
+
+
+  //排序
+  let sort = req.param('sort')
+  let params={};
+  let goodsModel = Goods.find(params).skip(skip).limit(pageSize);
+  goodsModel.sort({'salePrice':sort}); //排序条件
+  // Goods.find({}, function (err, doc) {
+  //修改查询方式
+  goodsModel.exec(function (err, doc) {
     if (err) {
       res.json({
         status: '1',
