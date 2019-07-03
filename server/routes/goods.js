@@ -26,20 +26,49 @@ mongoose.connection.on('disconnected', () => {
 })
 
 // 4. 获取路由
-
+// 查询列表数据
 router.get('/', function (req, res, next) {
   //分页 借用mongodb 的skip 和limit
   let page = parseInt(req.param('page'));
-  let pageSize =parseInt(req.param('pageSize'));
-
-  let skip = (page-1)*pageSize;
+  let pageSize = parseInt(req.param('pageSize'));
+  //价格区间
+  let priceLevel = req.param("priceLevel");
+  let priceGt = '', priceLte = ''
+  let skip = (page - 1) * pageSize;
+  let params = {};
+  if (priceLevel != 'all') {
+    switch (priceLevel) {
+      case '1':
+        priceGt = 0;
+        priceLte = 100;
+        break;
+      case '2':
+        priceGt = 100;
+        priceLte = 500;
+        break;
+      case '3':
+        priceGt = 500;
+        priceLte = 1000;
+        break;
+      case '4':
+        priceGt = 1000;
+        priceLte = 5000;
+        break;
+    }
+    params = {
+      salePrice: {
+        $gt: priceGt,
+        $lte: priceLte
+      }
+    }
+  }
 
 
   //排序
   let sort = req.param('sort')
-  let params={};
+
   let goodsModel = Goods.find(params).skip(skip).limit(pageSize);
-  goodsModel.sort({'salePrice':sort}); //排序条件
+  goodsModel.sort({'salePrice': sort}); //排序条件
   // Goods.find({}, function (err, doc) {
   //修改查询方式
   goodsModel.exec(function (err, doc) {
@@ -60,6 +89,88 @@ router.get('/', function (req, res, next) {
     }
   })
 
+})
+
+// 加入购物车
+
+router.post('/addCart', function (req, res, next) {
+
+  let userId = '100000077';
+  let productId = req.body.productId
+  let User = require('../models/user');
+
+
+  // 获取用户信息
+  // User.find()//获取所有的
+  User.findOne(   //查询当前第一个
+    {
+      userId: userId,
+    },
+    function (err, userDoc) {
+      if (err) {
+        res.json({
+          status: '1',
+          msg: err.message
+        })
+      } else {
+        if (userDoc) {
+          let goodsItem = '';
+          userDoc.cartList.forEach(item => {
+            if (item.productId == productId) {
+              goodsItem = item
+              parseInt(item.productNum++);
+            }
+          })
+          if (goodsItem) {
+            userDoc.save(function (err_2, doc_2) {
+              if (err_2) {
+                res.json({
+                  status: '1',
+                  msg: err.message
+                })
+              } else {
+                res.json({
+                  status: '0',
+                  msg: '',
+                  result: 'suc '
+                })
+              }
+            })
+          } else {
+            Goods.findOne({productId: productId}, function (err, doc) {
+              if (err) {
+                res.json({
+                  status: '1',
+                  msg: err.message
+                })
+              } else {
+                if (doc) {
+                  doc.procductNum = 1;
+                  doc.checked = 1; //1是选中
+                  userDoc.cartList.push(doc) //添加到数据库
+                  userDoc.save(function (err_2, doc_2) {
+                    if (err_2) {
+                      res.json({
+                        status: '1',
+                        msg: err.message
+                      })
+                    } else {
+                      res.json({
+                        status: '0',
+                        msg: '',
+                        result: 'suc '
+                      })
+                    }
+                  })
+                }
+              }
+            })
+          }
+
+        }
+      }
+    }
+  )
 })
 
 module.exports = router;

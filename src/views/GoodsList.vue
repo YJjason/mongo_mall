@@ -52,7 +52,7 @@
                     <div class="name">{{item.productName}}</div>
                     <div class="price">{{item.salePrice}}</div>
                     <div class="btn-area">
-                      <a href="javascript:;" class="btn btn--m">加入购物车</a>
+                      <a href="javascript:;" class="btn btn--m" @click="addCart(item.productId)">加入购物车</a>
                     </div>
                   </div>
                 </li>
@@ -60,7 +60,8 @@
               <div class="load-more"
                    v-infinite-scroll="loadMore"
                    infinite-scroll-disabled="busy" infinite-scroll-distance="10">
-                加载中...
+                <!--加载中...-->
+                <img src="../assets/loading-spinning-bubbles.svg" v-if="loading"></img>
               </div>
             </div>
           </div>
@@ -117,25 +118,27 @@
         page: 1,
         pageSize: 8,
         busy: false,
-
-
+        priceChecked: 'all',//价格区间
+        loading: false
       }
     },
     mounted() {
       this.getGoodsList()
-
     },
     methods: {
       getGoodsList(flag) {
+        this.loading = true
         let param = {
           page: this.page,
           pageSize: this.pageSize,
-          sort: this.sortflag == true ? 1 : -1
+          sort: this.sortflag == true ? 1 : -1,
+          priceLevel: this.priceChecked
         }
         axios.get('/goods', {
           params: param
         }).then(result => {
           let res = result.data;
+          this.loading = false;
           if (flag) { // 分页 data 进行累加
             this.goodsList = this.goodsList.concat(res.result.list)
             if (this.result.count == 0) {
@@ -151,10 +154,14 @@
       },
       selectAll() {
         this.currentPrice = 0
+        this.priceChecked = 'all'
         this.closlePop()
       },
       selectPrice(priceId) {
         this.currentPrice = priceId
+        this.priceChecked = priceId
+        this.page = 1
+        this.getGoodsList()
         this.closlePop()
       },
       filterHandle() {
@@ -177,6 +184,19 @@
           this.page++
           this.getGoodsList(true)
         }, 1000)
+      },
+      //添加购物车
+      addCart(id) {
+        axios.post('/goods/addCart', {
+          productId: id
+        }).then(res => {
+          console.log(112,res)
+          if (res.status == 200&& res.data.status==0) {
+            alert('成功')
+          }else{
+            alert('错误')
+          }
+        })
       }
     }
   }
