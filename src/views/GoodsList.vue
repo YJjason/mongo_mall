@@ -15,8 +15,8 @@
           <span class="sortby">Sort by:</span>
           <a href="javascript:void(0)" class="default cur">Default</a>
           <a href="javascript:void(0)" class="price" @click="sortGoods">Price
-            <svg class="icon icon-arrow-short">
-              <use xlink:href="#icon-arrow-short"></use>
+            <svg class="icon icon-arrow-short" style="width: 50px;height: 30px">
+              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-arrow-short"></use>
             </svg>
           </a>
           <a href="javascript:void(0)" class="filterby stopPop" @click="filterHandle">Filter by</a>
@@ -61,7 +61,7 @@
                    v-infinite-scroll="loadMore"
                    infinite-scroll-disabled="busy" infinite-scroll-distance="10">
                 <!--加载中...-->
-                <img src="../assets/loading-spinning-bubbles.svg" v-if="loading"></img>
+                <img src="../assets/loading-spinning-bubbles.svg" v-if="loading">
               </div>
             </div>
           </div>
@@ -138,7 +138,8 @@
           params: param
         }).then(result => {
           let res = result.data;
-          this.loading = false;
+          this.loading = true;
+          console.log(12,flag)
           if (flag) { // 分页 data 进行累加
             this.goodsList = this.goodsList.concat(res.result.list)
             if (this.result.count == 0) {
@@ -155,6 +156,7 @@
       selectAll() {
         this.currentPrice = 0
         this.priceChecked = 'all'
+        this.getGoodsList()
         this.closlePop()
       },
       selectPrice(priceId) {
@@ -190,10 +192,10 @@
         axios.post('/goods/addCart', {
           productId: id
         }).then(res => {
-          console.log(112,res)
-          if (res.status == 200&& res.data.status==0) {
+          console.log(112, res)
+          if (res.status == 200 && res.data.status == 0) {
             alert('成功')
-          }else{
+          } else {
             alert('错误')
           }
         })

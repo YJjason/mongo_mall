@@ -96,9 +96,9 @@ router.get('/', function (req, res, next) {
 router.post('/addCart', function (req, res, next) {
 
   let userId = '100000077';
-  let productId = req.body.productId
-  let User = require('../models/user');
+  let productId = req.body.productId   //post 方式取参数
 
+  let User = require('../models/user');
 
   // 获取用户信息
   // User.find()//获取所有的

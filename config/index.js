@@ -12,9 +12,16 @@ module.exports = {
     assetsPublicPath: '/',
     // mongoDb  做代理 解决跨域问题
     proxyTable: {
-        '/goods':{
-          target:'http://localhost:3000'
-        }
+      '/goods': {
+        target: 'http://localhost:3000'
+      },
+      '/goods/*': {
+        target: 'http://localhost:3000'
+      },
+      '/users/*': {
+        target: 'http://localhost:3000'
+      }
+
     },
 
     // Various Dev Server settings
