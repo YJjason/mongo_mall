@@ -223,6 +223,7 @@
           if (res.status == 200 && res.data.status == 0) {
             // alert('成功')
             this.mdShowCart=true
+            this.$store.commit('updateCartCount',1)
           } else {
             // alert(res.data.msg)
             this.mdShow=true

@@ -24,7 +24,7 @@
             <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!nickName">Login</a>
             <a href="javascript:void(0)" class="navbar-link" @click="logout" v-if="nickName">Logout</a>
             <div class="navbar-cart-container" style="display: inline-block">
-              <span class="navbar-cart-count"></span>
+              <span class="navbar-cart-count">{{cartCount}}</span>
               <a class="navbar-link navbar-cart-link" href="/#/cart">
                 <svg class="navbar-cart-logo" style="width: 50px;height: 30px">
                   <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
@@ -74,28 +74,47 @@
 <script>
   import '../assets/css/login.css'
   import axios from 'axios'
+  import {mapState} from 'vuex'
 
   export default {
     name: "Header",
     data() {
       return {
-        userName: '',
-        userPwd: '',
+        userName: 'admin',
+        userPwd: '123456',
         errorTip: false,
         loginModalFlag: false,
-        nickName: ''
       }
     },
     mounted() {
       this.checkLogin()
     },
+    computed: {
+    /*  nickName() {
+        return this.$store.state.nickName
+      },
+      cartCount(){
+        return this.$store.state.cartCount
+      }*/
+    ...mapState(['nickName','cartCount'])
+
+    },
     methods: {
       checkLogin() {
         axios.get('/users/checkLogin').then(response => {
           let res = response.data;
+          let path = this.$route.pathname;
           if (res.status == 0) {
-            this.nickName = res.result
+            // this.nickName = res.result;
+            // 使用vuex 替代
+            this.$store.commit('updateUserInfo', res.result)
+            this.loginModalFlag = false;
           }
+          /*     else {
+                 if (this.$route.path != '/goods') {
+                   this.$router.push('/goods');
+                 }
+               }*/
         })
       },
       login() {
@@ -111,7 +130,10 @@
           if (res.status == 0) {
             this.errorTip = false
             this.loginModalFlag = false
-            this.nickName = res.result.userName
+            // 使用vuex 替代
+            this.$store.commit('updateUserInfo', res.result.userName)
+            // this.nickName = res.result.userName
+            this.getCartCount();
           } else {
             this.errorTip = true
           }
@@ -121,9 +143,18 @@
         axios.post('/users/logout').then(response => {
           let res = response.data;
           if (res.status == '0') {
-            this.nickName = '';
+            // this.nickName = '';
+            // 使用vuex 替代
+            this.$store.commit('updateUserInfo', res.result.userName)
             alert('登出成功')
           }
+        })
+      },
+      //购物车数量
+      getCartCount() {
+        axios.get('/users/getCartCount').then(response => {
+          let res = response.data;
+          res.$store.commit('initCartCount', res.result.cartCount)
         })
       }
     }

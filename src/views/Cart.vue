@@ -229,7 +229,7 @@
           if (res.status == '0') {
             this.modalConfirm = false;
             var delCount = this.delItem.productNum;
-            /* this.$store.commit("updateCartCount", -delCount);*/
+            this.$store.commit("updateCartCount", -delCount);
             this.init();
           }
         });
@@ -253,7 +253,7 @@
         }).then((response) => {
           let res = response.data;
           if (res.status == "0") {
-            /* this.$store.commit("updateCartCount", flag == "add" ? 1 : -1);*/
+            this.$store.commit("updateCartCount", flag == "add" ? 1 : -1);
           }
         })
       },
