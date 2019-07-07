@@ -134,12 +134,12 @@
           sort: this.sortflag == true ? 1 : -1,
           priceLevel: this.priceChecked
         }
-        axios.get('/goods', {
+        axios.get('/goods/list', {
           params: param
         }).then(result => {
           let res = result.data;
           this.loading = true;
-          console.log(12,flag)
+          console.log(12, flag)
           if (flag) { // 分页 data 进行累加
             this.goodsList = this.goodsList.concat(res.result.list)
             if (this.result.count == 0) {
@@ -194,9 +194,10 @@
         }).then(res => {
           console.log(112, res)
           if (res.status == 200 && res.data.status == 0) {
+            alert(res.data.result)
             alert('成功')
           } else {
-            alert('错误')
+            alert(res.data.msg)
           }
         })
       }

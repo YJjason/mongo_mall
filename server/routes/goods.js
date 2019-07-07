@@ -27,7 +27,7 @@ mongoose.connection.on('disconnected', () => {
 
 // 4. 获取路由
 // 查询列表数据
-router.get('/', function (req, res, next) {
+router.get('/list', function (req, res, next) {
   //分页 借用mongodb 的skip 和limit
   let page = parseInt(req.param('page'));
   let pageSize = parseInt(req.param('pageSize'));
