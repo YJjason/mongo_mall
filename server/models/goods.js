@@ -15,9 +15,12 @@ var Schema = mongoose.Schema
 var produtSchema = new Schema({
   "productId": String,
   "productName": String,
-  "prodcutPrice": Number,
+  "productPrice": Number,
+  "salePrice":String,
+  "productNum": Number,
+  "checked": String,
   "prodcutImg": String
 });
 
 
-module.exports = mongoose.model('Goods',produtSchema)
+module.exports = mongoose.model('Goods', produtSchema)

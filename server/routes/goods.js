@@ -126,7 +126,7 @@ router.post('/addCart', function (req, res, next) {
               if (err_2) {
                 res.json({
                   status: '1',
-                  msg: err.message
+                  msg: err_2.message
                 })
               } else {
                 res.json({
@@ -145,14 +145,14 @@ router.post('/addCart', function (req, res, next) {
                 })
               } else {
                 if (doc) {
-                  doc.procductNum = 1;
+                  doc.productNum = 1;
                   doc.checked = 1; //1是选中
                   userDoc.cartList.push(doc) //添加到数据库
-                  userDoc.save(function (err_2, doc_2) {
+                  userDoc.save(function (err_2, doc) {
                     if (err_2) {
                       res.json({
                         status: '1',
-                        msg: err.message
+                        msg: err_2.message
                       })
                     } else {
                       res.json({

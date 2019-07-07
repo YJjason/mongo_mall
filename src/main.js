@@ -6,6 +6,10 @@ import router from './router'
 
 import VueLazyLoad from 'vue-lazyload' //图片懒加载
 import infiniteScroll from 'vue-infinite-scroll'
+import {currency} from './util/currency'
+
+// 全局过滤器
+Vue.filter('currency', currency)
 
 Vue.use(VueLazyLoad, {
   loading: '/static/loading-svg/loading-balls.svg'

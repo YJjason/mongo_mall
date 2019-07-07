@@ -91,7 +91,7 @@
     },
     methods: {
       checkLogin() {
-        axios.get('/checkLogin').then(response => {
+        axios.get('/users/checkLogin').then(response => {
           let res = response.data;
           if (res.status == 0) {
             this.nickName = res.result
