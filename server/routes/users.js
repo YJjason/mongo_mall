@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+require('../util/util')
 
 //User 模型
 let User = require("../models/user")
@@ -202,11 +203,7 @@ router.post('/editCheckAll', function (req, res, next) {
           }
         })
       }
-      res.json({
-        status: '0',
-        msg: '',
-        result: 'success'
-      })
+
     }
   })
 })
@@ -303,6 +300,118 @@ router.post('/delAddress', function (req, res, next) {
         })
       }
     })
+})
+//支付
+router.post('/payMent', function (req, res, next) {
+  let userId = req.cookies.userId;
+  let orderTotal = req.body.orderTotal;
+  let addressId = req.body.addressId;
+  User.findOne({userId: userId}, function (err, doc) {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      })
+    } else {
+      let address = '';
+      let goodsList = [];
+      // let orderTotal = 0;
+      //获取当前用户的地址信息
+      doc.addressList.forEach(item => {
+        if (item.addressId == addressId) {
+          address = item
+        }
+      })
+      // 获取用户购物车购买商品
+      doc.cartList.filter(item => {
+        if (item.checked == '1') {
+          goodsList.push(item)
+        }
+      })
+      //util 工具类生成orderId
+      let platfrom = '622'; // 当前系统平台
+      let r1 = Math.floor(Math.random() * 10)
+      let r2 = Math.floor(Math.random() * 10)
+      let sysDate = new Date().Format('yyyyMMddhhmmss');
+      let createDate = new Date().Format('yyyy-MM-dd hh:mm:ss');
+      let orderId = platfrom + r1 + sysDate + r2;
+      //创建订单
+      let order = {
+        orderId: orderId,
+        orderTotal: orderTotal,
+        addressInfo: address,
+        orderStatus: '1',
+        createData: createDate
+      }
+      // 数据库存储订单
+      doc.orderList.push(order);
+      doc.save(function (err1, doc1) {
+        if (err1) {
+          res.json({
+            status: '1',
+            msg: res.message,
+            result: ''
+          })
+        } else {
+          res.json({
+            status: '0',
+            msg: '',
+            result: {
+              orderId: order.orderId,
+              orderTotal: order.orderTotal
+            }
+          })
+        }
+      })
+
+    }
+  })
+})
+router.get('/orderDetail', function (req, res, next) {
+  let userId = req.cookies.userId
+  let orderId = req.query.orderId  //get 请求获取参数
+  User.findOne({userId: userId}, function (err, doc) {
+    if (err) {
+      res.json({
+        status: '1',
+        msg: err.message,
+        result: ''
+      })
+    } else {
+      let orderList = doc.orderList
+      let orderTotal = ''
+      if (orderList.length > 0) {
+        orderList.filter(item => {
+          if (item.orderId == orderId) {
+            orderTotal = item.orderTotal
+          }
+        })
+        if (orderTotal > 0) {  //订单总额大于零
+          res.json({
+            status: '0',
+            msg: '',
+            result: {
+              orderId: orderId,
+              orderTotal: orderTotal
+            }
+          })
+        } else {
+          res.json({
+            status: '120002',
+            msg: '查询无此订单',
+            result: ''
+          })
+        }
+      } else {
+        res.json({
+          status: '120001',
+          msg: '当前用户未创建订单',
+          result: ''
+        })
+      }
+    }
+  })
 })
 
 
